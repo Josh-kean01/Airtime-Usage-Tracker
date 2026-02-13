@@ -1,12 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
-import AutoImport from '../native/AutoImport';
-import parseAutoImportText from '../utils/parseAutoImport';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import { createContext, useContext, useEffect, useState } from "react";
+import AutoImport from "../native/AutoImport";
+import parseAutoImportText from "../utils/parseAutoImport";
 
-const PURCHASES_KEY = 'purchases_v1';
-const SETTINGS_KEY = 'settings_v1';
+const PURCHASES_KEY = "purchases_v1";
+const SETTINGS_KEY = "settings_v1";
 
 const DataContext = createContext();
 
@@ -14,6 +13,7 @@ const DataContext = createContext();
  * Provides purchases and settings context across the app.
  * Handles auto-import (Android Dev Client) and spending alerts.
  */
+
 export function DataProvider({ children }) {
   const [purchases, setPurchases] = useState([]);
   const [settings, setSettings] = useState({
@@ -37,7 +37,7 @@ export function DataProvider({ children }) {
           setSettings(JSON.parse(savedSettings));
         }
       } catch (e) {
-        console.warn('Failed to load saved data', e);
+        console.warn("Failed to load saved data", e);
       }
     })();
     // Determine if auto-import is supported (Android Dev Client)
@@ -50,7 +50,7 @@ export function DataProvider({ children }) {
     try {
       await AsyncStorage.setItem(PURCHASES_KEY, JSON.stringify(items));
     } catch (e) {
-      console.warn('Failed to save purchases', e);
+      console.warn("Failed to save purchases", e);
     }
   };
 
@@ -60,7 +60,7 @@ export function DataProvider({ children }) {
     try {
       await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(value));
     } catch (e) {
-      console.warn('Failed to save settings', e);
+      console.warn("Failed to save settings", e);
     }
   };
 
@@ -76,13 +76,15 @@ export function DataProvider({ children }) {
       const monthTotal = updated
         .filter((p) => {
           const d = new Date(p.dateISO);
-          return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+          return (
+            d.getMonth() === currentMonth && d.getFullYear() === currentYear
+          );
         })
         .reduce((sum, p) => sum + p.amount, 0);
       if (monthTotal > settings.spendingLimit) {
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: 'Spending Alert',
+            title: "Spending Alert",
             body: `You have exceeded your monthly limit of ₦${settings.spendingLimit.toLocaleString()}.`,
           },
           trigger: null,
@@ -125,7 +127,7 @@ export function DataProvider({ children }) {
           provider: parsed.provider,
           amount: parsed.amount,
           dateISO: parsed.dateISO,
-          source: 'auto_import_notification',
+          source: "auto_import_notification",
         });
       });
     } else {
